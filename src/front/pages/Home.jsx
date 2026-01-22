@@ -1,52 +1,61 @@
-import React, { useEffect } from "react"
-import rigoImageUrl from "../assets/img/rigo-baby.jpg";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Link } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Home = () => {
+  const { store, dispatch } = useGlobalReducer();
 
-	const { store, dispatch } = useGlobalReducer()
+  const logout = () => {
+    dispatch({ type: "logout" });
+  };
 
-	const loadMessage = async () => {
-		try {
-			const backendUrl = import.meta.env.VITE_BACKEND_URL
+  return (
+    <div className="container mt-5">
 
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
+      {!store.token ? (
+        <div style={{ padding: "2rem" }}>
+          <h2 className="display-6">Página principal</h2>
+          <p className="fs-5">No hay nadie con sesión iniciada.</p>
 
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
+          <Link to="/login">
+            <button type="button" className="btn btn-secondary p-2 m-2">Iniciar sesión</button>
+          </Link>
 
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
+          <Link to="/signup">
+            <button type="button" className="btn btn-secondary p-2 m-2">
+              Crear cuenta
+            </button>
+          </Link>
+          <Link to="/private">
+            <button type="button" className="btn btn-secondary p-2 m-2">
+              Zona super secreta
+            </button>
+          </Link>
+        </div>
+      ) : (
+        
+        <div style={{ padding: "2rem" }}>
+          <h2 className="display-6">Inicio de sesión</h2>
+          <p className="fs-5">
+            Sesión iniciada. Bienvenide de vuelta, {store.username}
+          </p>
 
-			return data
+          <button type="button" className="btn btn-secondary p-2 m-2"
+            onClick={logout}
+          >
+            Cerrar sesión
+          </button>
 
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
+          <Link to="/signup">
+            <button type="button" className="btn btn-secondary p-2 m-2">
+              Crear otra cuenta
+            </button>
+          </Link>
+          <Link to="/private">
+            <button type="button" className="btn btn-secondary p-2 m-2">Zona secreta</button>
+          </Link>
+        </div>
+      )}
 
-	}
-
-	useEffect(() => {
-		loadMessage()
-	}, [])
-
-	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
-			</div>
-		</div>
-	);
-}; 
+    </div>
+  );
+};
