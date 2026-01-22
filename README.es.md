@@ -1,81 +1,206 @@
-# Plantilla de WebApp con React JS y Flask API
+# Gestor de Secretos — Full-Stack con Flask, React y JWT
 
-Construye aplicaciones web usando React.js para el front end y python/flask para tu API backend.
+Aplicación full-stack que permite a los usuarios registrarse, iniciar sesión y guardar secretos personales en una zona privada protegida mediante autenticación con JSON Web Tokens (JWT).
 
-- La documentación se puede encontrar aquí: https://4geeks.com/docs/start/react-flask-template
-- Aquí hay un video sobre [cómo usar esta plantilla](https://www.youtube.com/watch?v=qBz6Ddd2m38)
-- Integrado con Pipenv para la gestión de paquetes.
-- Despliegue rápido a Render [en solo unos pocos pasos aquí](https://4geeks.com/es/docs/start/despliega-con-render-com).
-- Uso del archivo .env.
-- Integración de SQLAlchemy para la abstracción de bases de datos.
+El backend está desarrollado con Flask y SQLAlchemy, y el frontend con React usando Context + Reducer para el estado global.
 
-### 1) Instalación:
+Cada usuario solo puede acceder a sus propios datos.
 
-> Si usas Github Codespaces (recomendado) o Gitpod, esta plantilla ya vendrá con Python, Node y la base de datos Posgres instalados. Si estás trabajando localmente, asegúrate de instalar Python 3.10, Node.
+---
 
-Se recomienda instalar el backend primero, asegúrate de tener Python 3.10, Pipenv y un motor de base de datos (se recomienda Posgres).
+## Tecnologías utilizadas
 
-1. Instala los paquetes de python: `$ pipenv install`
-2. Crea un archivo .env basado en el .env.example: `$ cp .env.example .env`
-3. Instala tu motor de base de datos y crea tu base de datos, dependiendo de tu base de datos, debes crear una variable DATABASE_URL con uno de los valores posibles, asegúrate de reemplazar los valores con la información de tu base de datos:
+### Backend
+- Flask
+- Flask SQLAlchemy
+- Flask Migrate
+- Flask JWT Extended
+- CORS
 
-| Motor     | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgres  | postgres://username:password@localhost:5432/example |
+### Frontend
+- React
+- React Router
+- Context API + Reducer
+- Fetch API
+- Bootstrap
 
-4. Migra las migraciones: `$ pipenv run migrate` (omite si no has hecho cambios en los modelos en `./src/api/models.py`)
-5. Ejecuta las migraciones: `$ pipenv run upgrade`
-6. Ejecuta la aplicación: `$ pipenv run start`
+### Base de datos
+- Tablas relacionales
 
-> Nota: Los usuarios de Codespaces pueden conectarse a psql escribiendo: `psql -h localhost -U gitpod example`
+---
 
-### Deshacer una migración
+## Características principales
 
-También puedes deshacer una migración ejecutando
+- Registro de usuarios
+- Inicio de sesión con JWT
+- Rutas protegidas
+- Relación usuario con sus secretos
+- Creación de secretos privados
+- Estado global compartido en React
+- API REST
 
-```sh
-$ pipenv run downgrade
+---
+
+## Arquitectura del proyecto
+
+### Backend
+- Modelos: User, Secret
+- Autenticación JWT
+- Endpoints REST
+
+### Frontend
+
+- Store global con reducer
+- Formularios controlados
+- Protección de vistas privadas
+
+---
+
+## Modelos de datos
+
+### User
+- id
+- username (único)
+- email (único)
+- password
+- relación uno a muchos con Secret
+
+### Secret
+- id
+- text
+- user_id (ForeignKey)
+
+Un usuario puede tener múltiples secretos.  
+Cada secreto pertenece únicamente a un usuario.
+
+---
+
+## Funcionalidades
+
+### Registro (Signup)
+- Crea un nuevo usuario
+- Valida campos obligatorios
+- Evita duplicados de username y email
+- Redirige al login tras crearse correctamente
+
+
+### Login
+- Verifica email y contraseña
+- Genera token JWT
+- Guarda token y username en el estado global
+- Permite acceder a rutas protegidas
+
+
+### Zona privada
+- Acceso solo con token válido
+- Obtiene los secretos del usuario autenticado
+- Muestra listado personal
+- Permite añadir nuevos secretos
+
+
+### Añadir secreto
+- Formulario con texto
+- Petición POST autenticada
+- Guarda el secreto en la base de datos
+- Actualiza el estado global
+- Redirige automáticamente
+
+---
+
+## Estado global (React)
+
+El store gestiona:
+
+- token
+- username
+- secrets
+- url del backend
+
+Acciones disponibles:
+
+- login
+- logout
+- set_secrets
+
+---
+
+## Endpoints del backend
+
+### POST /signup
+
+Crea un usuario nuevo.
+
+Body:
+
+```json
+{
+  "email": "user@email.com",
+  "username": "usuario",
+  "password": "1234"
+}
 ```
 
-### Población de la tabla de usuarios en el backend
+### POST /login
 
-Para insertar usuarios de prueba en la base de datos, ejecuta el siguiente comando:
+Devuelve un token JWT.
 
-```sh
-$ flask insert-test-users 5
+Respuesta:
+
+```json
+{
+  "token": "jwt_token",
+  "username": "usuario"
+}
 ```
 
-Y verás el siguiente mensaje:
+### GET /private
+
+Requiere autenticación.
+
+Headers:
 
 ```
-    Creating test users
-    test_user1@test.com created.
-    test_user2@test.com created.
-    test_user3@test.com created.
-    test_user4@test.com created.
-    test_user5@test.com created.
-    Users created successfully!
+Authorization: Bearer <token>
 ```
 
-### **Nota importante para la base de datos y los datos dentro de ella**
+Respuesta:
 
-Cada entorno de Github Codespace tendrá **su propia base de datos**, por lo que si estás trabajando con más personas, cada uno tendrá una base de datos diferente y diferentes registros dentro de ella. Estos datos **se perderán**, así que no pases demasiado tiempo creando registros manualmente para pruebas, en su lugar, puedes automatizar la adición de registros a tu base de datos editando el archivo ```commands.py``` dentro de la carpeta ```/src/api```. Edita la línea 32 de la función ```insert_test_data``` para insertar los datos según tu modelo (usa la función ```insert_test_users``` anterior como ejemplo). Luego, todo lo que necesitas hacer es ejecutar ```pipenv run insert-test-data```.
+```json
+{
+  "logged_in_as": "usuario",
+  "secrets": ["secreto 1", "secreto 2"]
+}
+```
 
-### Instalación manual del Front-End:
+### POST /secrets
 
--   Asegúrate de estar usando la versión 20 de node y de que ya hayas instalado y ejecutado correctamente el backend.
+Requiere autenticación.
 
-1. Instala los paquetes: `$ npm install`
-2. ¡Empieza a codificar! inicia el servidor de desarrollo de webpack `$ npm run start`
+Body:
 
-## ¡Publica tu sitio web!
+```json
+{
+  "text": "mi secreto"
+}
+```
 
-Esta plantilla está 100% lista para desplegarse con Render.com y Heroku en cuestión de minutos. Por favor, lee la [documentación oficial al respecto](https://4geeks.com/docs/start/deploy-to-render-com).
+---
 
-### Contribuyentes
+## Seguridad
 
-Esta plantilla fue construida como parte del [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) de 4Geeks Academy por [Alejandro Sanchez](https://twitter.com/alesanchezr) y muchos otros contribuyentes. Descubre más sobre nuestro [Curso de Desarrollador Full Stack](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer) y [Bootcamp de Ciencia de Datos](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
+Actualmente incluye:
 
-Puedes encontrar otras plantillas y recursos como este en la [página de github de la escuela](https://github.com/4geeksacademy/).
+- Autenticación JWT
+- Rutas protegidas
+- Separación de datos por usuario
+
+---
+
+## Posibles mejoras futuras
+
+- Ocultar la generacion del token en .env
+- Editar y eliminar secretos
+- Búsqueda y filtros de secretos
+- Paginación
+- Mejoras visuales de interfaz
+

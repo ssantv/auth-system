@@ -1,81 +1,145 @@
-# WebApp boilerplate with React JS and Flask API
+# Secret Manager — Full-Stack with Flask, React, and JWT
+Full-stack application that allows users to register, log in, and store personal secrets in a private area protected by authentication with JSON Web Tokens (JWT).
+The backend is developed with Flask and SQLAlchemy, and the frontend with React using Context + Reducer for global state.
+Each user can only access their own data.
+---
+## Technologies used
+### Backend
+- Flask
+- Flask SQLAlchemy
+- Flask Migrate
+- Flask JWT Extended
+- CORS
+### Frontend
+- React
+- React Router
+- Context API + Reducer
+- Fetch API
+- Bootstrap
+### Database
+- Relational tables
+---
+## Main features
+- User registration
+- Login with JWT
+- Protected routes
+- User relationship with their secrets
+- Creation of private secrets
+- Shared global state in React
+- REST API
+---
+## Project architecture
+### Backend
+- Models: User, Secret
+- JWT authentication
+- REST endpoints
+### Frontend
+- Global store with reducer
+- Controlled forms
+- Private view protection
+---
+## Data models
+### User
+- id
+- username (unique)
+- email (unique)
+- password
+- One-to-many relationship with Secret
+### Secret
+- id
+- text
+- user_id (ForeignKey)
+A user can have multiple secrets.
+Each secret belongs to only one user.
+---
+## Features
+### Signup
+- Creates a new user
+- Validates required fields
+- Prevents duplicate usernames and emails
+- Redirects to login after successful creation
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+### Login
+- Verify email and password
+- Generate JWT token
+- Save token and username in global state
+- Allow access to protected routes
 
-- Documentation can be found here: https://4geeks.com/docs/start/react-flask-template
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to Render [in just a few steps here](https://4geeks.com/docs/start/deploy-to-render-com).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+### Private area
+- Access only with valid token
+- Obtain secrets of authenticated user
+- Display personal list
+- Allow adding new secrets
 
-### 1) Installation:
-
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
-
-It is recomended to install the backend first, make sure you have Python 3.10, Pipenv and a database engine (Posgress recomended)
-
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
-
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
-
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
-
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
-
-### Undo a migration
-
-You are also able to undo a migration by running
-
-```sh
-$ pipenv run downgrade
+### Add secret
+- Text form
+- Authenticated POST request
+- Save the secret in the database
+- Update global state
+- Redirect automatically
+---
+## Global state (React)
+The store manages:
+- token
+- username
+- secrets
+- backend URL
+Available actions:
+- login
+- logout
+- set_secrets
+---
+## Backend endpoints
+### POST /signup
+Creates a new user.
+Body:
+```json
+{
+  “email”: “user@email.com”,
+  “username”: “user”,
+  ‘password’: “1234”
+}
 ```
-
-### Backend Populate Table Users
-
-To insert test users in the database execute the following command:
-
-```sh
-$ flask insert-test-users 5
+### POST /login
+Returns a JWT token.
+Response:
+```json
+{
+  “token”: “jwt_token”,
+  ‘username’: “user”
+}
 ```
-
-And you will see the following message:
-
+### GET /private
+Requires authentication.
+Headers:
 ```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
+Authorization: Bearer <token>
 ```
-
-### **Important note for the database and the data inside it**
-
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
-
-### Front-End Manual Installation:
-
--   Make sure you are using node version 20 and that you have already successfully installed and runned the backend.
-
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
-
-## Publish your website!
-
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://4geeks.com/docs/start/deploy-to-render-com).
-
-### Contributors
-
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
-
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+Response:
+```json
+{
+  “logged_in_as”: “user”,
+  “secrets”: [“secret 1”, “secret 2”]
+}
+```
+### POST /secrets
+Requires authentication.
+Body:
+```json
+{
+  ‘text’: “my secret”
+}
+```
+---
+## Security
+Currently includes:
+- JWT authentication
+- Protected routes
+- Separation of data by user
+---
+## Possible future improvements
+- Hide token generation in .env
+- Edit and delete secrets
+- Search and filter secrets
+- Pagination
+- Visual interface improvements

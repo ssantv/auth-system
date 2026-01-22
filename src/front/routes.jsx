@@ -10,6 +10,7 @@ import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Signup } from "./pages/Signup";
 import { Private } from "./pages/Private";
+import { NewSecret } from "./pages/NewSecret";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -24,9 +25,10 @@ export const router = createBrowserRouter(
 
         {/* Nested Routes: Defines sub-routes within the BaseHome component. */}
         <Route path= "/" element={<Home />} />
-        <Route path="/login" element={ <Login />} />  {/* Formulario de inicio de sesion */}
+        <Route path="/login" element={<Login />} />  {/* Formulario de inicio de sesion */}
         <Route path="/signup" element={<Signup />} /> {/* Formulario de nuevo usuario */}
         <Route path="/private" element={<Private />} /> {/* Zona privada */}
+        <Route path="/new_secret" element={<NewSecret />} /> {/* Nuevo secreto */}
       </Route>
     )
 );

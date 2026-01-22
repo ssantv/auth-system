@@ -46,36 +46,33 @@ export const Signup = () => {
 
   return (
     <div className="container mt-5">
-      <div style={{ padding: "2rem" }}>
-        <h2 class="display-6">Crear cuenta</h2>
+      <h2 class="display-6">Crear cuenta</h2>
+      <form onSubmit={handleSignup}>
+        <div className="mb-3 d-flex m-2 gap-2">
+          <input className="form-control"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <form onSubmit={handleSignup}>
-          <div className="mb-3 d-flex m-2 gap-2">
-            <input className="form-control"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+          <input className="form-control"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-            <input className="form-control"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <input className="form-control"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit" className="btn btn-secondary">Crear cuenta</button>
+      </form>
 
-            <input className="form-control"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn btn-secondary">Crear cuenta</button>
-        </form>
-
-        {msg && <p className="fs-5 text-success">{msg}</p>}
-        {error && <p className="fs-5 text-danger">{error}</p>}
-      </div>
+      {msg && <p className="fs-5 text-success">{msg}</p>}
+      {error && <p className="fs-5 text-danger">{error}</p>}
     </div>
   );
 };

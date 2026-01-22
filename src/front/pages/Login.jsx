@@ -56,22 +56,22 @@ export const Login = () => {
 
   return (
     <div className="container mt-5">
-    <div style={{ padding: "2rem" }}>
+
       <h2 className="display-6">Inicio de sesión</h2>
 
       <form onSubmit={handleLogin}>
         <div className="mb-3 d-flex m-2 gap-2">
-        <input className="form-control"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input className="form-control"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input className="form-control"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input className="form-control"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
 
         <button type="submit" className="btn btn-secondary">Aceptar</button>
@@ -80,6 +80,6 @@ export const Login = () => {
       {msg && <p className="fs-5 text-success">{msg}</p>}
       {error && <p className="fs-5 text-danger">{error}</p>}
     </div>
-    </div>
+
   );
 };

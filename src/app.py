@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db, User
+from api.models import db, User, Secret
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -63,8 +63,11 @@ def handle_invalid_usage(error):
 
 # generate sitemap with all your endpoints
 
-app.config["JWT_SECRET_KEY"] = "Sup3rUltr4S3cr3t0"  # Esto hay que moverlo de sitio, porque si se publica el repo lo ve todo el mundo. ¿A .env?
+
+# Esto hay que moverlo de sitio, porque si se publica el repo lo ve todo el mundo. ¿A .env?
+app.config["JWT_SECRET_KEY"] = "Sup3rUltr4S3cr3t0"
 jwt = JWTManager(app)
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -77,10 +80,11 @@ def login():
     if user is None:
         # el usuario no se encontró en la base de datos
         return jsonify({"msg": "Usuario o contraseña incorrectos"}), 401
-    
+
     # Crea un nuevo token con el id de usuario dentro
     access_token = create_access_token(identity=user.username)
-    return jsonify({ "token": access_token, "username": user.username })
+    return jsonify({"token": access_token, "username": user.username})
+
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -97,7 +101,7 @@ def signup():
 
     if existing_user:
         return jsonify({"msg": "El usuario ya existe"}), 409
-    
+
     existing_email = User.query.filter((User.email == email)).first()
 
     if existing_email:
@@ -119,8 +123,38 @@ def signup():
 @app.route('/private')
 @jwt_required()
 def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    current_user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=current_user_identity).first()
+
+    if not user:
+        return jsonify({"msg": "Usuario no encontrado"}), 404
+
+    secrets = [secret.text for secret in user.secrets]
+
+    return jsonify({
+        "logged_in_as": user.username,
+        "secrets": secrets
+    }), 200
+
+
+@app.route("/secrets", methods=["POST"])
+@jwt_required()
+def add_secret():
+    current_user_identity = get_jwt_identity()
+    user = User.query.filter_by(username=current_user_identity).first()
+
+    if not user:
+        return jsonify({"msg": "Usuario no encontrado"}), 404
+
+    text = request.json.get("text")
+    if not text:
+        return jsonify({"msg": "No puede estar vacío"}), 400
+
+    secret = Secret(text=text, user=user)
+    db.session.add(secret)
+    db.session.commit()
+
+    return jsonify({"msg": "Secreto guardado"}), 201
 
 
 # this only runs if `$ python src/main.py` is executed
