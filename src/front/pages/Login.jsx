@@ -16,7 +16,7 @@ export const Login = () => {
     setError(null);
 
     try {
-      const res = await fetch(`${store.url}/login`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

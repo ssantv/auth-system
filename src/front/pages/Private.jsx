@@ -9,7 +9,7 @@ export const Private = () => {
     const { store, dispatch } = useGlobalReducer();
 
     useEffect(() => {
-        fetch(`${store.url}/private`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/private`, {
             headers: {
                 Authorization: `Bearer ${store.token}`
             }

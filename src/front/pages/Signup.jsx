@@ -19,7 +19,7 @@ export const Signup = () => {
     setMsg(null);
 
     try {
-      const res = await fetch(`${store.url}/signup`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

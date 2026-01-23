@@ -15,7 +15,7 @@ export const NewSecret = () => {
         if (!text) return;
 
         try {
-            const res = await fetch(`${store.url}/secrets`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/secrets`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

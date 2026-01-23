@@ -1,6 +1,5 @@
 export const initialStore = () => {
   return {
-    url: "https://ideal-space-yodel-q7xjp45rpj4gc496j-3001.app.github.dev",
     token: null,
     username: "",
     secrets: []
