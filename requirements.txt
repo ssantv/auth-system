@@ -4,6 +4,7 @@ Flask-Swagger
 Flask-JWT-Extended
 Flask-Cors
 Flask-SQLAlchemy
+Flask-Admin
 psycopg2-binary
 python-dotenv
 pyyaml==6.0.1
