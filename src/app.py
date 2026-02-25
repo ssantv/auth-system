@@ -21,9 +21,12 @@ from flask_cors import CORS
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../dist/')
-app = Flask(__name__)
+# 1. Definir la ruta de la carpeta estática (donde React deja el build)
+# Normalmente la plantilla de 4Geeks genera 'public' o 'dist'
+static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
+
+# 2. Configurar Flask con esa carpeta
+app = Flask(__name__, static_folder=static_file_dir, static_url_path='/')
 
 CORS(
     app,
@@ -158,6 +161,20 @@ def add_secret():
 
 
 # this only runs if `$ python src/main.py` is executed
+
+@app.route('/')
+def sitemap():
+    # En producción (Render), enviamos el index.html de React
+    return send_from_directory(static_file_dir, 'index.html')
+
+@app.route('/<path:path>', methods=['GET'])
+def serve_any_other_file(path):
+    # Si el archivo existe (como una imagen o js), lo envía. 
+    # Si no, envía el index.html para que React maneje la ruta.
+    if not os.path.isfile(os.path.join(static_file_dir, path)):
+        path = 'index.html'
+    return send_from_directory(static_file_dir, path)
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
